@@ -13,7 +13,7 @@ class SimplexMethod():
                   '<=': r'$\leq$',
                   '>=': r'$\geq$'}
 
-    '''Init list'''
+    # Init list
     def __init__(self):
         self.A = []
         self.b = []
@@ -26,6 +26,7 @@ class SimplexMethod():
         self.gen_doc = False
         self.doc = ""
 
+    '''run simplex method'''
     def run_simplex(self, A, b, c, prob='max', ineq=[], enable_msg=False, latex=False):
         # Run simplex algorithm.
         self.prob = prob
@@ -87,9 +88,9 @@ class SimplexMethod():
             print("That's all folks!")
         self.print_doc()
         return solution
-        
+
+    ''' Set initial variables and create tableau.'''
     def set_simplex_input(self, A, b, c):
-        ''' Set initial variables and create tableau.'''
         # Convert all entries to fractions for readability.
         for a in A:
             self.A.append([Fraction(x) for x in a])    
@@ -138,16 +139,16 @@ class SimplexMethod():
             else:
                 self.entering.append("b")
 
+    ''' Add slack & artificial variables to matrix A to transform
+                all inequalities to equalities.'''
     def add_slack_variables(self):
-        ''' Add slack & artificial variables to matrix A to transform
-            all inequalities to equalities.'''
         slack_vars = self._generate_identity(len(self.tableau))
         for i in range(0, len(slack_vars)):
             self.tableau[i] += slack_vars[i]
             self.tableau[i] += [self.b[i]]
 
+    ''' Create initial tableau table.'''
     def create_tableau(self):
-        ''' Create initial tableau table.'''
         self.tableau = copy.deepcopy(self.A)
         self.add_slack_variables()
         c = copy.deepcopy(self.c)
@@ -155,16 +156,15 @@ class SimplexMethod():
             c[index] = -value
         self.tableau.append(c + [0] * (len(self.b)+1))
 
+    ''' Find pivot index.'''
     def find_pivot(self):
-        ''' Find pivot index.'''
         enter_index = self.get_entering_var()
         depart_index = self.get_departing_var(enter_index)
         return [enter_index, depart_index]
 
+    ''' Perform operations on pivot.'''
     def pivot(self, pivot_index):
-        ''' Perform operations on pivot.'''
         j,i = pivot_index
-
         pivot = self.tableau[i][j]
         self.tableau[i] = [element / pivot for
                            element in self.tableau[i]]
@@ -177,11 +177,10 @@ class SimplexMethod():
                                          row_scale)]
 
         self.departing[i] = self.entering[j]
-        
+
+    ''' Get entering variable by determining the 'most negative'
+                element of the bottom row.'''
     def get_entering_var(self):
-        ''' Get entering variable by determining the 'most negative'
-            element of the bottom row.
-        '''
         bottom_row = self.tableau[len(self.tableau) - 1]
         most_neg_ind = 0
         most_neg = bottom_row[most_neg_ind]
@@ -191,10 +190,9 @@ class SimplexMethod():
                 most_neg_ind = index
         return most_neg_ind
 
+    ''' To calculate the departing variable, get the minimum of the ratio
+                of b (b_i) to the corresponding value in the entering collumn. '''
     def get_departing_var(self, entering_index):
-        ''' To calculate the departing variable, get the minimum of the ratio
-            of b (b_i) to the corresponding value in the entering collumn. 
-        '''
         skip = 0
         min_ratio_index = -1
         min_ratio = 0
@@ -215,18 +213,16 @@ class SimplexMethod():
         
         return min_ratio_index
 
+    ''' Get A matrix with b vector appended. '''
     def get_Ab(self):
-        ''' Get A matrix with b vector appended.
-        '''
         matrix = copy.deepcopy(self.A)
         for i in range(0, len(matrix)):
             matrix[i] += [self.b[i]]
         return matrix
 
+    ''' Determines whether there are any negative elements
+                on the bottom row'''
     def should_terminate(self):
-        ''' Determines whether there are any negative elements
-            on the bottom row
-        '''
         result = True
         index = len(self.tableau) - 1
         for i, x in enumerate(self.tableau[index]):
@@ -234,9 +230,8 @@ class SimplexMethod():
                 result = False
         return result
 
+    ''' Get the current solution from tableau.'''
     def get_current_solution(self):
-        ''' Get the current solution from tableau.
-        '''
         solution = {}
         for x in self.entering:
             if x is not 'b':
@@ -435,9 +430,8 @@ class SimplexMethod():
         else:
             return r"\frac{%s}{%s}" % (str(fract.numerator), str(fract.denominator))
 
+    ''' Helper function for generating a square identity matrix.'''
     def _generate_identity(self, n):
-        ''' Helper function for generating a square identity matrix.
-        '''
         I = []
         for i in range(0, n):
             row = []
@@ -448,16 +442,16 @@ class SimplexMethod():
                     row.append(0)
             I.append(row)
         return I
-        
+
+    ''' Print some matrix.'''
     def _print_matrix(self, M):
-        ''' Print some matrix.'''
         table = BeautifulTable()
         for row in M:
             table.append_row(row)
         print(table)
 
+    ''' Print simplex tableau.'''
     def _print_tableau(self):
-        ''' Print simplex tableau.'''
         table = BeautifulTable()
         table.append_row(self.entering + ['B'])
 
@@ -534,6 +528,5 @@ if __name__ == '__main__':
     if answ3 == True:
         print('Website:')
         webbrowser.open('https://latexbase.com')
-
 
     exit(0)
