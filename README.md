@@ -34,3 +34,5 @@ This problem can be solved by running the script with the following parameters:
 $ python simplex.py -m "[[2,1],[1,1]]" -b "[6,4]" -c "[3,2]" -p min
 ```
 
+### Links
+- [An Example of Two Phase Simplex Method](http://optlab.mcmaster.ca/feng/4O03/Two.Phase.Simplex.pdf)
