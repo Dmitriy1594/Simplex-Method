@@ -1,5 +1,9 @@
 # Simplex Method
 
+## Site-calculator
+https://dmitriy1594.github.io/Simplex-Method/
+
+## Python module
 ### Examples
 
 ###### 1. Standard Form Maximization LP
