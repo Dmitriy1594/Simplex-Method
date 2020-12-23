@@ -1,3 +1,16 @@
+"""
+simple_simplex.py
+
+created by dromakin as 25.11.2020
+Project Simplex-Method
+"""
+
+__author__ = 'dromakin'
+__maintainer__ = 'dromakin'
+__credits__ = ['dromakin', ]
+__status__ = 'Development'
+__version__ = '20201125'
+
 from pip._vendor.distlib.compat import raw_input
 from beautifultable import BeautifulTable
 from fractions import Fraction
@@ -6,6 +19,7 @@ import webbrowser
 import argparse
 
 clear = lambda: os.system('cls' if os.name == 'nt' else 'clear')
+
 
 class SimplexMethod():
     # Table for converting inequality list to LaTeX    
@@ -27,6 +41,7 @@ class SimplexMethod():
         self.doc = ""
 
     '''run simplex method'''
+
     def run_simplex(self, A, b, c, prob='max', ineq=[], enable_msg=False, latex=False):
         # Run simplex algorithm.
         self.prob = prob
@@ -38,23 +53,23 @@ class SimplexMethod():
 
         # Add slack & artificial variables
         self.set_simplex_input(A, b, c)
-            
+
         # Are there any negative elements on the bottom (disregarding right-most element...)
         while (not self.should_terminate()):
             # ... if so, continue.
-            if(enable_msg):
+            if (enable_msg):
                 clear()
                 self._print_tableau()
                 print("Current solution: %s\n" %
                       str(self.get_current_solution()))
                 self._prompt()
-            
+
             # Attempt to find a non-negative pivot.
             pivot = self.find_pivot()
             if pivot[1] < 0:
                 if (enable_msg):
-                    print ("There exists no non-negative pivot. "
-                           "Thus, the solution is impossible.")
+                    print("There exists no non-negative pivot. "
+                          "Thus, the solution is impossible.")
                 self.infeasible_doc()
                 self.print_doc()
                 return None
@@ -68,7 +83,7 @@ class SimplexMethod():
                           "Thus, pivot to improve the current solution. The "
                           "entering variable is %s and the departing "
                           "variable is %s.\n" %
-                           (str(self.entering[pivot[0]]),
+                          (str(self.entering[pivot[0]]),
                            str(self.departing[pivot[1]])))
                     self._prompt()
                     print("\nPerform elementary row operations until the "
@@ -90,10 +105,11 @@ class SimplexMethod():
         return solution
 
     ''' Set initial variables and create tableau.'''
+
     def set_simplex_input(self, A, b, c):
         # Convert all entries to fractions for readability.
         for a in A:
-            self.A.append([Fraction(x) for x in a])    
+            self.A.append([Fraction(x) for x in a])
         self.b = [Fraction(x) for x in b]
         self.c = [Fraction(x) for x in c]
         if not self.ineq:
@@ -101,7 +117,7 @@ class SimplexMethod():
                 self.ineq = ['<='] * len(b)
             elif self.prob == 'min':
                 self.ineq = ['>='] * len(b)
-            
+
         self.update_enter_depart(self.get_Ab())
         self.init_problem_doc()
 
@@ -110,10 +126,10 @@ class SimplexMethod():
             # Find the dual maximum and solve that.
             m = self.get_Ab()
             m.append(self.c + [0])
-            m = [list(t) for t in zip(*m)] # Calculates the transpose
-            self.A = [x[:(len(x)-1)] for x in m]
+            m = [list(t) for t in zip(*m)]  # Calculates the transpose
+            self.A = [x[:(len(x) - 1)] for x in m]
             self.b = [y[len(y) - 1] for y in m]
-            self.c = m[len(m) -1]
+            self.c = m[len(m) - 1]
             self.A.pop()
             self.b.pop()
             self.c.pop()
@@ -141,6 +157,7 @@ class SimplexMethod():
 
     ''' Add slack & artificial variables to matrix A to transform
                 all inequalities to equalities.'''
+
     def add_slack_variables(self):
         slack_vars = self._generate_identity(len(self.tableau))
         for i in range(0, len(slack_vars)):
@@ -148,38 +165,42 @@ class SimplexMethod():
             self.tableau[i] += [self.b[i]]
 
     ''' Create initial tableau table.'''
+
     def create_tableau(self):
         self.tableau = copy.deepcopy(self.A)
         self.add_slack_variables()
         c = copy.deepcopy(self.c)
         for index, value in enumerate(c):
             c[index] = -value
-        self.tableau.append(c + [0] * (len(self.b)+1))
+        self.tableau.append(c + [0] * (len(self.b) + 1))
 
     ''' Find pivot index.'''
+
     def find_pivot(self):
         enter_index = self.get_entering_var()
         depart_index = self.get_departing_var(enter_index)
         return [enter_index, depart_index]
 
     ''' Perform operations on pivot.'''
+
     def pivot(self, pivot_index):
-        j,i = pivot_index
+        j, i = pivot_index
         pivot = self.tableau[i][j]
         self.tableau[i] = [element / pivot for
                            element in self.tableau[i]]
         for index, row in enumerate(self.tableau):
-           if index != i:
-              row_scale = [y * self.tableau[index][j]
-                          for y in self.tableau[i]]
-              self.tableau[index] = [x - y for x,y in
-                                     zip(self.tableau[index],
-                                         row_scale)]
+            if index != i:
+                row_scale = [y * self.tableau[index][j]
+                             for y in self.tableau[i]]
+                self.tableau[index] = [x - y for x, y in
+                                       zip(self.tableau[index],
+                                           row_scale)]
 
         self.departing[i] = self.entering[j]
 
     ''' Get entering variable by determining the 'most negative'
                 element of the bottom row.'''
+
     def get_entering_var(self):
         bottom_row = self.tableau[len(self.tableau) - 1]
         most_neg_ind = 0
@@ -192,28 +213,30 @@ class SimplexMethod():
 
     ''' To calculate the departing variable, get the minimum of the ratio
                 of b (b_i) to the corresponding value in the entering collumn. '''
+
     def get_departing_var(self, entering_index):
         skip = 0
         min_ratio_index = -1
         min_ratio = 0
         for index, x in enumerate(self.tableau):
-            if x[entering_index] != 0 and x[len(x)-1]/x[entering_index] > 0:
+            if x[entering_index] != 0 and x[len(x) - 1] / x[entering_index] > 0:
                 skip = index
                 min_ratio_index = index
-                min_ratio = x[len(x)-1]/x[entering_index]
+                min_ratio = x[len(x) - 1] / x[entering_index]
                 break
-        
+
         if min_ratio > 0:
             for index, x in enumerate(self.tableau):
                 if index > skip and x[entering_index] > 0:
-                    ratio = x[len(x)-1]/x[entering_index]
+                    ratio = x[len(x) - 1] / x[entering_index]
                     if min_ratio > ratio:
                         min_ratio = ratio
                         min_ratio_index = index
-        
+
         return min_ratio_index
 
     ''' Get A matrix with b vector appended. '''
+
     def get_Ab(self):
         matrix = copy.deepcopy(self.A)
         for i in range(0, len(matrix)):
@@ -222,6 +245,7 @@ class SimplexMethod():
 
     ''' Determines whether there are any negative elements
                 on the bottom row'''
+
     def should_terminate(self):
         result = True
         index = len(self.tableau) - 1
@@ -231,18 +255,19 @@ class SimplexMethod():
         return result
 
     ''' Get the current solution from tableau.'''
+
     def get_current_solution(self):
         solution = {}
         for x in self.entering:
             if x is not 'b':
                 if x in self.departing:
-                    solution[x] = self.tableau[self.departing.index(x)]\
-                                  [len(self.tableau[self.departing.index(x)])-1]
+                    solution[x] = self.tableau[self.departing.index(x)] \
+                        [len(self.tableau[self.departing.index(x)]) - 1]
                 else:
                     solution[x] = 0
-        solution['z'] = self.tableau[len(self.tableau) - 1]\
-                          [len(self.tableau[0]) - 1]
-        
+        solution['z'] = self.tableau[len(self.tableau) - 1] \
+            [len(self.tableau[0]) - 1]
+
         # If this is a minimization problem...
         if (self.prob == 'min'):
             # ... then get x_1, ..., x_n  from last element of
@@ -250,7 +275,7 @@ class SimplexMethod():
             bottom_row = self.tableau[len(self.tableau) - 1]
             for v in self.entering:
                 if 's' in v:
-                    solution[v.replace('s', 'x')] = bottom_row[self.entering.index(v)]    
+                    solution[v.replace('s', 'x')] = bottom_row[self.entering.index(v)]
 
         return solution
 
@@ -260,7 +285,7 @@ class SimplexMethod():
         self.doc = (r"\documentclass{article}"
                     r"\usepackage{amsmath}"
                     r"\begin{document}"
-                    r"\title{Simplex Solver}"
+                    r"\title{Simplex Method}"
                     r"\maketitle"
                     r"\begin{flushleft}"
                     r"\textbf{Problem}"
@@ -287,7 +312,7 @@ class SimplexMethod():
                 opp = ''
             if x == 1 or x == -1:
                 x = ''
-            func += (r"%s %sx_%s "  % (opp, str(x), str(index+1)))
+            func += (r"%s %sx_%s " % (opp, str(x), str(index + 1)))
             found_value = True
         self.doc += (r"\max{%s} \\ "
                      r"\end{equation*}" % func)
@@ -315,17 +340,17 @@ class SimplexMethod():
                 if index != len(matrix[i]) - 1:
                     if x == 1 or x == -1:
                         x = ''
-                    self.doc += (r"%s %s%s "  % (opp, str(x),
-                                                 str(self.entering[index])))
+                    self.doc += (r"%s %s%s " % (opp, str(x),
+                                                str(self.entering[index])))
                 else:
-                    self.doc += (r"%s %s"  % (self.latex_ineq[self.ineq[i]],str(x)))
+                    self.doc += (r"%s %s" % (self.latex_ineq[self.ineq[i]], str(x)))
                 found_value = True
                 if (index == len(matrix[i]) - 1):
-                    self.doc += r" \\ "        
+                    self.doc += r" \\ "
         self.doc += (r"\end{array}"
                      r"\right."
                      r"\]")
- 
+
     def slack_doc(self):
         if not self.gen_doc:
             return
@@ -333,7 +358,7 @@ class SimplexMethod():
                      r"Add slack variables to turn "
                      r"all inequalities to equalities."
                      r"\end{flushleft}")
-        self.linear_system_doc(self.tableau[:len(self.tableau)-1])
+        self.linear_system_doc(self.tableau[:len(self.tableau) - 1])
 
     def init_tableau_doc(self):
         if not self.gen_doc:
@@ -342,13 +367,13 @@ class SimplexMethod():
                      r"Create the initial tableau of the new linear system."
                      r"\end{flushleft}")
         self.tableau_doc()
-            
+
     def tableau_doc(self):
         if not self.gen_doc:
             return
         self.doc += r"\begin{equation*}"
         self.doc += r"\begin{bmatrix}"
-        self.doc += r"\begin{array}{%s|c}" % ("c" * (len(self.tableau[0])-1))
+        self.doc += r"\begin{array}{%s|c}" % ("c" * (len(self.tableau[0]) - 1))
         for index, var in enumerate(self.entering):
             if index != len(self.entering) - 1:
                 self.doc += r"%s &" % var
@@ -356,9 +381,9 @@ class SimplexMethod():
                 self.doc += r"%s \\ \hline" % var
         for indexr, row in enumerate(self.tableau):
             for indexv, value in enumerate(row):
-                if indexv != (len(row)-1):
+                if indexv != (len(row) - 1):
                     self.doc += r"%s & " % (str(value))
-                elif indexr != (len(self.tableau)-2):
+                elif indexr != (len(self.tableau) - 2):
                     self.doc += r"%s \\" % (str(value))
                 else:
                     self.doc += r"%s \\ \hline" % (str(value))
@@ -391,18 +416,18 @@ class SimplexMethod():
                      r"variable is $%s$."
                      r"\end{flushleft}" %
                      (str(self.entering[pivot[0]]),
-                     str(self.departing[pivot[1]])))
+                      str(self.departing[pivot[1]])))
         self.doc += (r"\begin{flushleft}"
                      r"Perform elementary row operations until the "
                      r"pivot element is 1 and all other elements in the "
                      r"entering column are 0."
                      r"\end{flushleft}")
-    
+
     def current_solution_doc(self, solution):
         if not self.gen_doc:
             return
         self.doc += r"\begin{equation*}"
-        for key,value in sorted(solution.items()):
+        for key, value in sorted(solution.items()):
             self.doc += r"%s = %s" % (key, self._fraction_to_latex(value))
             if key != 'z':
                 self.doc += r", "
@@ -431,6 +456,7 @@ class SimplexMethod():
             return r"\frac{%s}{%s}" % (str(fract.numerator), str(fract.denominator))
 
     ''' Helper function for generating a square identity matrix.'''
+
     def _generate_identity(self, n):
         I = []
         for i in range(0, n):
@@ -444,6 +470,7 @@ class SimplexMethod():
         return I
 
     ''' Print some matrix.'''
+
     def _print_matrix(self, M):
         table = BeautifulTable()
         for row in M:
@@ -451,6 +478,7 @@ class SimplexMethod():
         print(table)
 
     ''' Print simplex tableau.'''
+
     def _print_tableau(self):
         table = BeautifulTable()
         table.append_row(self.entering + ['B'])
@@ -460,7 +488,7 @@ class SimplexMethod():
             for index, val in enumerate(row):
                 ls.append(str(val))
 
-            if num < (len(self.tableau) -1):
+            if num < (len(self.tableau) - 1):
                 table.append_row(ls + [self.departing[num]])
             else:
                 table.append_row(ls + [' '])
@@ -470,54 +498,62 @@ class SimplexMethod():
     def _prompt(self):
         raw_input("Press enter to continue...")
 
-def query_yes_no(question, default="yes"):
-        """Ask a yes/no question via raw_input() and return their answer.
 
-        "question" is a string that is presented to the user.
-        "default" is the presumed answer if the user just hits <Enter>.
+def query_yes_no(question, default="yes"):
+    """
+    Ask a yes/no question via raw_input() and return their answer.
+
+    :param question: is a string that is presented to the user.
+    :param default: is the presumed answer if the user just hits <Enter>.
             It must be "yes" (the default), "no" or None (meaning
             an answer is required of the user).
+    :return: The "answer" return value is True for "yes" or False for "no".
+    """
+    valid = {"yes": True, "y": True, "ye": True,
+             "no": False, "n": False}
+    if default is None:
+        prompt = " [y/n] "
+    elif default == "yes":
+        prompt = " [Y/n] "
+    elif default == "no":
+        prompt = " [y/N] "
+    else:
+        raise ValueError("invalid default answer: '%s'" % default)
 
-        The "answer" return value is True for "yes" or False for "no".
-        """
-        valid = {"yes": True, "y": True, "ye": True,
-                 "no": False, "n": False}
-        if default is None:
-            prompt = " [y/n] "
-        elif default == "yes":
-            prompt = " [Y/n] "
-        elif default == "no":
-            prompt = " [y/N] "
+    while True:
+        sys.stdout.write(question + prompt)
+        choice = raw_input().lower()
+        if default is not None and choice == '':
+            return valid[default]
+        elif choice in valid:
+            return valid[choice]
         else:
-            raise ValueError("invalid default answer: '%s'" % default)
+            sys.stdout.write("Please respond with 'yes' or 'no' "
+                             "(or 'y' or 'n').\n")
 
-        while True:
-            sys.stdout.write(question + prompt)
-            choice = raw_input().lower()
-            if default is not None and choice == '':
-                return valid[default]
-            elif choice in valid:
-                return valid[choice]
-            else:
-                sys.stdout.write("Please respond with 'yes' or 'no' "
-                                 "(or 'y' or 'n').\n")
 
 if __name__ == '__main__':
-    clear()
+    # clear()
+    #
+    # ap = argparse.ArgumentParser()
+    # ap.add_argument('-m', '--matrix', required=True, help="Matrix coefficients")
+    # ap.add_argument('-b', '--base', required=True, help="Base coefficients")
+    # ap.add_argument('-c', '--coef', required=True, help="Coefficients")
+    # ap.add_argument('-p', '--problem', help="max or min")
+    #
+    # matrix = ast.literal_eval(vars(ap.parse_args())['matrix'])
+    # base = ast.literal_eval(vars(ap.parse_args())['base'])
+    # coef = ast.literal_eval(vars(ap.parse_args())['coef'])
+    # if len(vars(ap.parse_args())) == 3:
+    #     p = 'max'
+    # else:
+    #     p = vars(ap.parse_args())['problem']
 
-    ap = argparse.ArgumentParser()
-    ap.add_argument('-m', '--matrix', required=True, help="Matrix coefficients")
-    ap.add_argument('-b', '--base', required=True, help="Base coefficients")
-    ap.add_argument('-c', '--coef', required=True, help="Coefficients")
-    ap.add_argument('-p', '--problem', help="max or min")
-
-    matrix = ast.literal_eval(vars(ap.parse_args())['matrix'])
-    base = ast.literal_eval(vars(ap.parse_args())['base'])
-    coef = ast.literal_eval(vars(ap.parse_args())['coef'])
-    if len(vars(ap.parse_args())) == 3:
-        p = 'max'
-    else:
-        p = vars(ap.parse_args())['problem']
+    # -m "[[2,1],[1,2]]" -b "[4,3]" -c "[1,1]" -p max
+    matrix = [[1, 1, 1], [2, 1, -1], [0, -1, 1]]
+    base = [40, 10, 10]
+    coef = [2, 3, 1]
+    p = 'max'
 
     answ1 = query_yes_no('Enable messages?')
     answ2 = query_yes_no('Generate latex document?')

@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+        <meta name="theme-color" content="#14191e"/>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <link rel="icon" type="image/png" href="/images/icons/favicon-16x16.png" sizes="16x16">
+        <link rel="icon" type="image/png" href="/images/icons/xfavicon-32x32.png.pagespeed.ic.B6ShHu1qEO.png" sizes="32x32">
+        <link rel="icon" type="image/png" href="/images/icons/xfavicon-96x96.png.pagespeed.ic.pacHCNTAQ1.png" sizes="96x96">
+        <link rel="icon" type="image/png" href="/images/icons/xandroid-chrome-192x192.png.pagespeed.ic.BDinKklSsA.png" sizes="192x192">
+        <link href="app.css" rel="stylesheet">
+        <style></style>
+    </head>
+    <body>
+        <script src="app.js"></script>
+        <header></header>
+        <div class="scrollProgressContainer">
+            <div class="scrollProgressBar"></div>
+        </div>
+        <div id="main-content" class="main-content">
+            <div class="content content-page">
+                <h1>Simplex Method</h1>
+                <div class='centered'>
+                    <div class="simplex">
+                        <div class="simplex-variables">
+                            <span>Количество переменных: </span>
+                            <input id="varsBox" type="number" min="1" max="1000" value="3" onchange="InitTable()" oninput="InitTable()">
+                        </div>
+                        <div class="simplex-num-restrictions">
+                            <span>Количество ограничений: </span>
+                            <input id="restrBox" type="number" min="1" max="1000" value="3" onchange="InitTable()" oninput="InitTable()">
+                        </div>
+                        <div class="function-block">
+                            <div>
+                                <b>Целевая функция:</b>
+                            </div>
+                            <div class="simplex-function">
+                                <span id="function"></span>
+                                <span>&rarr;</span>
+                                <select id="mode">
+                                    <option>min</option>
+                                    <option>max</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="simplex-restrictions">
+                            <div>
+                                <b>Ограничения:</b>
+                            </div>
+                            <div id="restrictions"></div>
+                            <div id="rest-vars"></div>
+                        </div>
+                        <div class="simplex-options">
+                            <div>
+                                <label class="switch-checkbox">
+                                    <input type="checkbox" id="asFraqtions" checked>
+                                    <span class="switch-checkbox-text">В виде дробей</span>
+                                </label>
+                            </div>
+                            <div>
+                                <label class="switch-checkbox">
+                                    <input type="checkbox" id="withSolveBox" checked>
+                                    <span class="switch-checkbox-text">С решением</span>
+                                </label>
+                            </div>
+                        </div>
+                        <select id="solveType">
+                            <option value="1" selected>Базовый симплекс-метод</option>
+                            <option value="2">Метод искусственного базиса</option>
+                        </select>
+                        <div class="simplex-buttons">
+                            <div class="simplex-btn" onclick="Clear()">Очистить</div>
+                            <div class="simplex-btn" onclick="Solve(); yaCounter45321723.reachGoal('simplex'); return true;">Решить</div>
+                            <div class="simplex-btn" onclick="MakeDual()">В двойственную</div>
+                        </div>
+                        <p class="calc-statistics righted"><span class="fa fa-bar-chart"></span>Выполнено действий: <span id="stat-value"></span></p>
+                    </div>
+                </div>
+                <div class="simplex-solve">
+                    <span id="simplex-solve"></span>
+                </div>
+
+                <script src="app_2.js"></script>
+            </div>
+        </div>
+    </body>
+</html>
